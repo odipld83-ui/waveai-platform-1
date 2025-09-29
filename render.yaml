@@ -1,0 +1,30 @@
+# WaveAI - Configuration Render
+# Version finale optimisée pour nouveau repository
+
+services:
+  - type: web
+    name: waveai-platform
+    env: python
+    buildCommand: pip install -r requirements_clean.txt
+    startCommand: python waveai_main.py
+    plan: free
+    
+    # Variables d'environnement
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_APP
+        value: waveai_main.py
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: waveai-db
+          property: connectionString
+
+# Base de données PostgreSQL gratuite
+databases:
+  - name: waveai-db
+    databaseName: waveai
+    user: waveai_user
+    plan: free
