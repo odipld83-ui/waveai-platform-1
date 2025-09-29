@@ -1,0 +1,480 @@
+{% extends "base_clean.html" %}
+
+{% block title %}Erreur - WaveAI{% endblock %}
+
+{% block head %}
+<style>
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .error-animation {
+        width: 200px;
+        height: 200px;
+        margin-bottom: 2rem;
+        position: relative;
+        animation: errorFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes errorFloat {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .error-wave {
+        font-size: 8rem;
+        color: var(--wave-primary);
+        opacity: 0.3;
+        animation: waveError 2s ease-in-out infinite;
+    }
+
+    @keyframes waveError {
+        0%, 100% { transform: rotate(-5deg) scale(1); }
+        50% { transform: rotate(5deg) scale(1.1); }
+    }
+
+    .error-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        animation: slideInUp 0.6s ease-out;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .error-message {
+        font-size: 1.3rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        line-height: 1.6;
+        animation: slideInUp 0.6s ease-out 0.2s both;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        animation: slideInUp 0.6s ease-out 0.4s both;
+    }
+
+    .error-details {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 3rem;
+        text-align: left;
+        max-width: 600px;
+        width: 100%;
+        animation: slideInUp 0.6s ease-out 0.6s both;
+    }
+
+    .error-details h3 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .error-details p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .error-details ul {
+        color: var(--text-secondary);
+        margin-left: 1.5rem;
+        line-height: 1.8;
+    }
+
+    .error-code {
+        font-family: 'Courier New', monospace;
+        background: var(--bg-secondary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        color: var(--wave-primary);
+        font-weight: 600;
+    }
+
+    .help-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .help-link {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .help-link:hover {
+        background: var(--bg-primary);
+        border-color: var(--wave-primary);
+        transform: translateY(-2px);
+    }
+
+    .help-icon {
+        font-size: 2rem;
+        opacity: 0.7;
+    }
+
+    .help-text {
+        flex: 1;
+    }
+
+    .help-text h4 {
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .help-text p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .error-title {
+            font-size: 2rem;
+        }
+        
+        .error-message {
+            font-size: 1.1rem;
+        }
+        
+        .error-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .error-actions .btn {
+            width: 200px;
+            justify-content: center;
+        }
+        
+        .help-links {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Animation de glitch pour les erreurs 500 */
+    .glitch {
+        animation: glitchEffect 0.3s ease-in-out infinite;
+    }
+
+    @keyframes glitchEffect {
+        0% { transform: translate(0); }
+        20% { transform: translate(-2px, 2px); }
+        40% { transform: translate(-2px, -2px); }
+        60% { transform: translate(2px, 2px); }
+        80% { transform: translate(2px, -2px); }
+        100% { transform: translate(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <!-- Animation d'erreur -->
+    <div class="error-animation">
+        <div class="error-wave {% if error and '500' in error %}glitch{% endif %}">🌊</div>
+    </div>
+
+    <!-- Titre et message selon le type d'erreur -->
+    {% if error and '404' in error %}
+        <h1 class="error-title">404</h1>
+        <p class="error-message">
+            Oups ! La page que vous cherchez semble avoir dérivé dans l'océan numérique.
+            <br>Cette vague ne nous mène nulle part ! 🏄‍♂️
+        </p>
+    {% elif error and '500' in error %}
+        <h1 class="error-title">500</h1>
+        <p class="error-message">
+            Une tempête inattendue secoue nos serveurs !
+            <br>Nos équipes naviguent vers une solution. 🌪️
+        </p>
+    {% else %}
+        <h1 class="error-title">Erreur</h1>
+        <p class="error-message">
+            {% if error %}
+                {{ error }}
+            {% else %}
+                Une erreur inattendue s'est produite dans les eaux de WaveAI.
+            {% endif %}
+        </p>
+    {% endif %}
+
+    <!-- Actions rapides -->
+    <div class="error-actions">
+        <a href="{{ url_for('landing') }}" class="btn btn-primary">
+            🏠 Retour à l'accueil
+        </a>
+        
+        {% if session.user_id %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                📊 Mon Dashboard
+            </a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                🔐 Se connecter
+            </a>
+        {% endif %}
+        
+        <button onclick="history.back()" class="btn btn-secondary">
+            ← Page précédente
+        </button>
+    </div>
+
+    <!-- Détails de l'erreur -->
+    <div class="error-details">
+        <h3>
+            🔍 Que s'est-il passé ?
+        </h3>
+        
+        {% if error and '404' in error %}
+            <p>
+                La page demandée n'existe pas ou a été déplacée. 
+                Cela peut arriver si :
+            </p>
+            <ul>
+                <li>L'URL a été mal tapée</li>
+                <li>La page a été supprimée ou déplacée</li>
+                <li>Vous n'avez pas les permissions nécessaires</li>
+                <li>Le lien est obsolète</li>
+            </ul>
+        {% elif error and '500' in error %}
+            <p>
+                Une erreur interne du serveur s'est produite. 
+                Code d'erreur : <span class="error-code">{{ error }}</span>
+            </p>
+            <p>
+                Cela peut être causé par :
+            </p>
+            <ul>
+                <li>Un problème temporaire de nos serveurs</li>
+                <li>Une maintenance en cours</li>
+                <li>Une surcharge du système</li>
+                <li>Une configuration incorrecte</li>
+            </ul>
+        {% else %}
+            <p>
+                Une erreur inattendue s'est produite : 
+                <span class="error-code">{{ error or 'Erreur inconnue' }}</span>
+            </p>
+            <p>
+                Si le problème persiste, n'hésitez pas à nous contacter 
+                avec les détails de ce que vous essayiez de faire.
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Liens d'aide -->
+    <div class="help-links">
+        <a href="{{ url_for('dashboard') if session.user_id else url_for('login') }}" class="help-link">
+            <div class="help-icon">🏠</div>
+            <div class="help-text">
+                <h4>Espace Principal</h4>
+                <p>Retourner à votre espace WaveAI</p>
+            </div>
+        </a>
+
+        <a href="#" onclick="reportIssue()" class="help-link">
+            <div class="help-icon">📧</div>
+            <div class="help-text">
+                <h4>Signaler le Problème</h4>
+                <p>Nous aider à corriger cette erreur</p>
+            </div>
+        </a>
+
+        <a href="#" onclick="refreshPage()" class="help-link">
+            <div class="help-icon">🔄</div>
+            <div class="help-text">
+                <h4>Actualiser</h4>
+                <p>Recharger la page actuelle</p>
+            </div>
+        </a>
+
+        <a href="#" onclick="clearCache()" class="help-link">
+            <div class="help-icon">🧹</div>
+            <div class="help-text">
+                <h4>Vider le Cache</h4>
+                <p>Effacer les données temporaires</p>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Fonction pour signaler un problème
+    function reportIssue() {
+        const errorDetails = {
+            url: window.location.href,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            error: '{{ error or "Erreur inconnue" }}',
+            userId: '{{ session.user_id if session.user_id else "Non connecté" }}'
+        };
+
+        const subject = encodeURIComponent('Erreur WaveAI - ' + errorDetails.error);
+        const body = encodeURIComponent(`
+Bonjour,
+
+J'ai rencontré une erreur sur WaveAI :
+
+URL : ${errorDetails.url}
+Erreur : ${errorDetails.error}
+Utilisateur : ${errorDetails.userId}
+Timestamp : ${errorDetails.timestamp}
+Navigateur : ${errorDetails.userAgent}
+
+Description de ce que je faisais :
+[Veuillez décrire ce que vous essayiez de faire]
+
+Merci pour votre aide !
+        `);
+
+        // Simuler l'envoi d'email (en production, utiliser un vrai système)
+        window.location.href = `mailto:support@waveai.fr?subject=${subject}&body=${body}`;
+    }
+
+    // Fonction pour actualiser la page
+    function refreshPage() {
+        if (confirm('Voulez-vous actualiser la page ?')) {
+            window.location.reload();
+        }
+    }
+
+    // Fonction pour vider le cache
+    function clearCache() {
+        if (confirm('Voulez-vous vider le cache et actualiser ?')) {
+            // Vider le localStorage et sessionStorage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Recharger sans cache
+            window.location.reload(true);
+        }
+    }
+
+    // Auto-actualisation pour les erreurs serveur
+    {% if error and '500' in error %}
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    function autoRetry() {
+        retryCount++;
+        if (retryCount <= maxRetries) {
+            console.log(`Tentative de reconnexion ${retryCount}/${maxRetries}...`);
+            
+            // Vérifier si le serveur répond
+            fetch('/api/status')
+                .then(response => {
+                    if (response.ok) {
+                        // Serveur OK, recharger la page
+                        window.location.reload();
+                    } else {
+                        // Réessayer dans 10 secondes
+                        setTimeout(autoRetry, 10000);
+                    }
+                })
+                .catch(() => {
+                    // Réessayer dans 10 secondes
+                    setTimeout(autoRetry, 10000);
+                });
+        }
+    }
+
+    // Démarrer l'auto-retry après 5 secondes
+    setTimeout(autoRetry, 5000);
+    {% endif %}
+
+    // Animation spéciale pour les erreurs
+    document.addEventListener('DOMContentLoaded', function() {
+        // Effet de rebond pour les boutons
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+            });
+        });
+
+        // Animation des help-links
+        const helpLinks = document.querySelectorAll('.help-link');
+        helpLinks.forEach((link, index) => {
+            link.style.animation = `slideInUp 0.6s ease-out ${0.8 + (index * 0.1)}s both`;
+        });
+
+        // Easter egg - Konami code pour mode debug
+        let konamiCode = [];
+        const konamiSequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // ↑↑↓↓←→←→BA
+        
+        document.addEventListener('keydown', function(e) {
+            konamiCode.push(e.keyCode);
+            if (konamiCode.length > konamiSequence.length) {
+                konamiCode.shift();
+            }
+            
+            if (JSON.stringify(konamiCode) === JSON.stringify(konamiSequence)) {
+                showDebugInfo();
+            }
+        });
+    });
+
+    // Mode debug secret
+    function showDebugInfo() {
+        const debugInfo = {
+            url: window.location.href,
+            referrer: document.referrer,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
+            error: '{{ error or "Aucune" }}',
+            session: '{{ session.user_id if session.user_id else "Non connecté" }}'
+        };
+
+        alert(`🐛 Mode Debug WaveAI\n\n${JSON.stringify(debugInfo, null, 2)}`);
+    }
+
+    // Tracking des erreurs (en production)
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'exception', {
+            'description': '{{ error or "Erreur inconnue" }}',
+            'fatal': {% if error and '500' in error %}true{% else %}false{% endif %}
+        });
+    }
+</script>
+{% endblock %}
