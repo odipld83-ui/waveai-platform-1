@@ -1,0 +1,490 @@
+{% extends "base_clean.html" %}
+
+{% block title %}WaveAI - Agents IA Intelligents{% endblock %}
+
+{% block head %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 4rem 0;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+        border-radius: 20px;
+        margin-bottom: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(14, 165, 233, 0.03) 2px,
+            rgba(14, 165, 233, 0.03) 4px
+        );
+        animation: wavePattern 15s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes wavePattern {
+        0% { transform: translateY(0px); }
+        100% { transform: translateY(20px); }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: var(--wave-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: heroTitle 1s ease-out;
+    }
+
+    @keyframes heroTitle {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        animation: heroSubtitle 1s ease-out 0.2s both;
+    }
+
+    @keyframes heroSubtitle {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero-cta {
+        animation: heroButton 1s ease-out 0.4s both;
+    }
+
+    @keyframes heroButton {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .agents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .agent-card {
+        background: var(--bg-card);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        animation: agentCard 0.6s ease-out both;
+    }
+
+    .agent-card:nth-child(1) { animation-delay: 0.1s; }
+    .agent-card:nth-child(2) { animation-delay: 0.2s; }
+    .agent-card:nth-child(3) { animation-delay: 0.3s; }
+    .agent-card:nth-child(4) { animation-delay: 0.4s; }
+    .agent-card:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes agentCard {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .agent-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--wave-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .agent-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .agent-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--wave-primary);
+    }
+
+    .agent-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        background: var(--wave-gradient);
+        animation: agentIcon 2s ease-in-out infinite;
+    }
+
+    @keyframes agentIcon {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .agent-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .agent-role {
+        font-size: 1rem;
+        color: var(--wave-primary);
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .agent-description {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .feature-card {
+        background: var(--bg-secondary);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        text-align: center;
+        transition: var(--transition);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--wave-primary);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .feature-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    .cta-section {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .cta-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .cta-description {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+        }
+        
+        .agents-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .agent-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>🌊 WaveAI</h1>
+        <p>Surfez sur la vague de l'intelligence artificielle avec nos 5 agents spécialisés pour optimiser votre productivité</p>
+        <div class="hero-cta">
+            <a href="{{ url_for('login') }}" class="btn btn-primary">
+                🚀 Commencer Gratuitement
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Agents Section -->
+<section>
+    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700; color: var(--text-primary);">
+        Nos Agents Spécialisés
+    </h2>
+    
+    <div class="agents-grid">
+        <!-- Alex - Productivité -->
+        <div class="agent-card">
+            <div class="agent-icon">🏢</div>
+            <h3 class="agent-name">Alex</h3>
+            <p class="agent-role">Agent Productivité</p>
+            <p class="agent-description">
+                Expert en emails, gestion des tâches et organisation professionnelle. 
+                Alex optimise votre workflow quotidien et vous aide à rester organisé.
+            </p>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                Discuter avec Alex
+            </a>
+        </div>
+
+        <!-- Lina - LinkedIn -->
+        <div class="agent-card">
+            <div class="agent-icon">💼</div>
+            <h3 class="agent-name">Lina</h3>
+            <p class="agent-role">Agent LinkedIn</p>
+            <p class="agent-description">
+                Spécialiste du réseautage professionnel et LinkedIn. 
+                Lina vous aide à créer du contenu engageant et développer votre réseau.
+            </p>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                Discuter avec Lina
+            </a>
+        </div>
+
+        <!-- Marco - Social -->
+        <div class="agent-card">
+            <div class="agent-icon">📱</div>
+            <h3 class="agent-name">Marco</h3>
+            <p class="agent-role">Agent Social</p>
+            <p class="agent-description">
+                Expert en réseaux sociaux et contenu viral. 
+                Marco booste votre présence sociale et crée du contenu qui engage.
+            </p>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                Discuter avec Marco
+            </a>
+        </div>
+
+        <!-- Sofia - Planning -->
+        <div class="agent-card">
+            <div class="agent-icon">📅</div>
+            <h3 class="agent-name">Sofia</h3>
+            <p class="agent-role">Agent Planning</p>
+            <p class="agent-description">
+                Experte en calendriers et gestion du temps. 
+                Sofia organise vos rendez-vous et optimise votre planning quotidien.
+            </p>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                Discuter avec Sofia
+            </a>
+        </div>
+
+        <!-- Kai - Conversationnel -->
+        <div class="agent-card">
+            <div class="agent-icon">💬</div>
+            <h3 class="agent-name">Kai</h3>
+            <p class="agent-role">Agent Conversationnel</p>
+            <p class="agent-description">
+                Compagnon IA polyvalent pour discussions libres. 
+                Kai vous accompagne au quotidien et répond à toutes vos questions.
+            </p>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                Discuter avec Kai
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section>
+    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700; color: var(--text-primary);">
+        Pourquoi Choisir WaveAI ?
+    </h2>
+    
+    <div class="features">
+        <div class="feature-card">
+            <span class="feature-icon">🚀</span>
+            <h3 class="feature-title">IA Avancée</h3>
+            <p class="feature-description">
+                Technologie IA de pointe avec support des derniers modèles : 
+                OpenAI, Claude, Hugging Face et Ollama local.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">🎯</span>
+            <h3 class="feature-title">Agents Spécialisés</h3>
+            <p class="feature-description">
+                5 agents experts dans leurs domaines pour des réponses 
+                précises et adaptées à vos besoins spécifiques.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">🔒</span>
+            <h3 class="feature-title">Sécurisé & Privé</h3>
+            <p class="feature-description">
+                Vos données restent privées. Authentification sécurisée 
+                et chiffrement de bout en bout.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">⚙️</span>
+            <h3 class="feature-title">Personnalisable</h3>
+            <p class="feature-description">
+                Configurez vos propres clés API et personnalisez 
+                les paramètres de chaque agent selon vos préférences.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">📱</span>
+            <h3 class="feature-title">Multi-Plateforme</h3>
+            <p class="feature-description">
+                Accessible sur tous vos appareils : ordinateur, 
+                tablette, smartphone. Interface responsive et PWA.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">💫</span>
+            <h3 class="feature-title">Gratuit pour Commencer</h3>
+            <p class="feature-description">
+                Commencez gratuitement avec Hugging Face, 
+                ajoutez vos APIs premium quand vous le souhaitez.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <h2 class="cta-title">Prêt à Surfer sur la Vague de l'IA ?</h2>
+    <p class="cta-description">
+        Rejoignez des milliers d'utilisateurs qui optimisent déjà leur productivité 
+        avec nos agents IA spécialisés. Gratuit pour commencer !
+    </p>
+    <a href="{{ url_for('login') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+        🌊 Créer Mon Compte Gratuit
+    </a>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Animation au scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+            }
+        });
+    }, observerOptions);
+
+    // Observer tous les éléments à animer
+    document.addEventListener('DOMContentLoaded', function() {
+        const elementsToAnimate = document.querySelectorAll('.feature-card, .cta-section');
+        elementsToAnimate.forEach(el => {
+            observer.observe(el);
+        });
+    });
+
+    // Animation fadeInUp
+    const fadeInUpStyle = document.createElement('style');
+    fadeInUpStyle.textContent = `
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(fadeInUpStyle);
+</script>
+{% endblock %}
