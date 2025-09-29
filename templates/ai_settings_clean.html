@@ -1,0 +1,782 @@
+{% extends "base_clean.html" %}
+
+{% block title %}Paramètres IA - WaveAI{% endblock %}
+
+{% block head %}
+<style>
+    .settings-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .settings-header {
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .settings-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--wave-gradient);
+    }
+
+    .settings-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .settings-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    .settings-form {
+        background: var(--bg-card);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--border);
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--wave-primary);
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        background: var(--bg-primary);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: var(--wave-primary);
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .form-select option {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .checkbox-group:hover {
+        border-color: var(--wave-primary);
+        background: var(--bg-primary);
+    }
+
+    .checkbox-input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--wave-primary);
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        color: var(--text-primary);
+        font-weight: 500;
+        cursor: pointer;
+        flex: 1;
+    }
+
+    .slider-group {
+        margin-bottom: 1rem;
+    }
+
+    .slider-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .slider-value {
+        background: var(--wave-primary);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .slider-input {
+        width: 100%;
+        height: 6px;
+        background: var(--bg-secondary);
+        border-radius: 3px;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+    }
+
+    .slider-input::-webkit-slider-thumb {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: var(--wave-primary);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .slider-input::-webkit-slider-thumb:hover {
+        background: var(--wave-primary-dark);
+        transform: scale(1.1);
+    }
+
+    .slider-input::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: var(--wave-primary);
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+        transition: var(--transition);
+    }
+
+    .slider-input::-moz-range-thumb:hover {
+        background: var(--wave-primary-dark);
+        transform: scale(1.1);
+    }
+
+    .info-box {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .info-box-title {
+        color: var(--info);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-box-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .warning-box {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .warning-box-title {
+        color: var(--warning);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .warning-box-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .test-connection {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .test-status {
+        font-weight: 600;
+    }
+
+    .test-success {
+        color: var(--success);
+    }
+
+    .test-error {
+        color: var(--error);
+    }
+
+    .test-loading {
+        color: var(--warning);
+    }
+
+    .model-preview {
+        background: var(--bg-secondary);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+        border: 1px solid var(--border);
+    }
+
+    .model-preview-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .model-preview-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    @media (max-width: 768px) {
+        .settings-container {
+            padding: 0 1rem;
+        }
+        
+        .settings-form {
+            padding: 1.5rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Animation des sections */
+    .form-section {
+        animation: slideInUp 0.6s ease-out both;
+    }
+
+    .form-section:nth-child(1) { animation-delay: 0.1s; }
+    .form-section:nth-child(2) { animation-delay: 0.2s; }
+    .form-section:nth-child(3) { animation-delay: 0.3s; }
+    .form-section:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Header -->
+    <div class="settings-header">
+        <h1 class="settings-title">
+            ⚙️ Paramètres IA
+        </h1>
+        <p class="settings-subtitle">
+            Configurez vos APIs et personnalisez l'expérience de vos agents WaveAI
+        </p>
+    </div>
+
+    <!-- Formulaire -->
+    <form method="POST" class="settings-form" id="settingsForm">
+        <!-- Section APIs Premium -->
+        <div class="form-section">
+            <h2 class="section-title">
+                🔑 APIs Premium
+            </h2>
+            
+            <!-- OpenAI -->
+            <div class="form-group">
+                <label class="form-label" for="openai_key">
+                    🤖 Clé API OpenAI (GPT-3.5, GPT-4)
+                </label>
+                <input 
+                    type="password" 
+                    id="openai_key" 
+                    name="openai_key"
+                    class="form-input"
+                    placeholder="sk-..."
+                    value="{% if settings and settings.openai_api_key %}{{ '●' * 20 }}{% endif %}"
+                >
+                <div class="test-connection" id="openai-test" style="display: none;">
+                    <span class="test-status">Test de connexion:</span>
+                    <span class="test-result">En attente...</span>
+                </div>
+            </div>
+
+            <!-- Anthropic -->
+            <div class="form-group">
+                <label class="form-label" for="anthropic_key">
+                    🧠 Clé API Anthropic (Claude)
+                </label>
+                <input 
+                    type="password" 
+                    id="anthropic_key" 
+                    name="anthropic_key"
+                    class="form-input"
+                    placeholder="sk-ant-..."
+                    value="{% if settings and settings.anthropic_api_key %}{{ '●' * 20 }}{% endif %}"
+                >
+                <div class="test-connection" id="anthropic-test" style="display: none;">
+                    <span class="test-status">Test de connexion:</span>
+                    <span class="test-result">En attente...</span>
+                </div>
+            </div>
+
+            <!-- Hugging Face -->
+            <div class="form-group">
+                <label class="form-label" for="huggingface_token">
+                    🤗 Token Hugging Face (Gratuit)
+                </label>
+                <input 
+                    type="password" 
+                    id="huggingface_token" 
+                    name="huggingface_token"
+                    class="form-input"
+                    placeholder="hf_..."
+                    value="{% if settings and settings.huggingface_token %}{{ settings.huggingface_token }}{% endif %}"
+                >
+                <div class="info-box">
+                    <div class="info-box-title">
+                        ℹ️ Information
+                    </div>
+                    <div class="info-box-text">
+                        Hugging Face est gratuit et fonctionne sans token. 
+                        Un token améliore les performances et évite les limites.
+                        <a href="https://huggingface.co/settings/tokens" target="_blank" style="color: var(--wave-primary);">
+                            Obtenir un token gratuit →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Modèle Par Défaut -->
+        <div class="form-section">
+            <h2 class="section-title">
+                🎯 Modèle Par Défaut
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label" for="default_model">
+                    🚀 Modèle Préféré
+                </label>
+                <select id="default_model" name="default_model" class="form-select">
+                    <option value="huggingface" {% if settings and settings.default_model == 'huggingface' %}selected{% endif %}>
+                        🤗 Hugging Face (Gratuit)
+                    </option>
+                    <option value="openai" {% if settings and settings.default_model == 'openai' %}selected{% endif %}>
+                        🤖 OpenAI (Premium)
+                    </option>
+                    <option value="anthropic" {% if settings and settings.default_model == 'anthropic' %}selected{% endif %}>
+                        🧠 Anthropic Claude (Premium)
+                    </option>
+                </select>
+                
+                <div class="model-preview" id="modelPreview">
+                    <div class="model-preview-title">Modèle sélectionné : Hugging Face</div>
+                    <div class="model-preview-text">
+                        Modèle gratuit, toujours disponible. Performances correctes pour la plupart des tâches.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ollama Local -->
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input 
+                        type="checkbox" 
+                        id="use_ollama" 
+                        name="use_ollama" 
+                        class="checkbox-input"
+                        {% if settings and settings.use_ollama %}checked{% endif %}
+                    >
+                    <label for="use_ollama" class="checkbox-label">
+                        🖥️ Utiliser Ollama (Local) si disponible
+                    </label>
+                </div>
+                <div class="info-box">
+                    <div class="info-box-title">
+                        💡 Ollama Local
+                    </div>
+                    <div class="info-box-text">
+                        Ollama permet d'exécuter des modèles IA directement sur votre ordinateur. 
+                        Plus rapide et privé, mais nécessite une installation locale.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Paramètres Avancés -->
+        <div class="form-section">
+            <h2 class="section-title">
+                🔧 Paramètres Avancés
+            </h2>
+            
+            <!-- Température -->
+            <div class="form-group">
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <label class="form-label">
+                            🌡️ Température (Créativité)
+                        </label>
+                        <span class="slider-value" id="temperatureValue">
+                            {% if settings %}{{ settings.temperature }}{% else %}0.7{% endif %}
+                        </span>
+                    </div>
+                    <input 
+                        type="range" 
+                        id="temperature" 
+                        name="temperature"
+                        class="slider-input"
+                        min="0" 
+                        max="1" 
+                        step="0.1"
+                        value="{% if settings %}{{ settings.temperature }}{% else %}0.7{% endif %}"
+                    >
+                    <div class="info-box">
+                        <div class="info-box-title">
+                            ℹ️ Température
+                        </div>
+                        <div class="info-box-text">
+                            <strong>0.0 :</strong> Réponses très prévisibles et factuelles<br>
+                            <strong>0.7 :</strong> Équilibre créativité/précision (recommandé)<br>
+                            <strong>1.0 :</strong> Réponses très créatives et variées
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tokens Maximum -->
+            <div class="form-group">
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <label class="form-label">
+                            📝 Tokens Maximum (Longueur)
+                        </label>
+                        <span class="slider-value" id="tokensValue">
+                            {% if settings %}{{ settings.max_tokens }}{% else %}1000{% endif %}
+                        </span>
+                    </div>
+                    <input 
+                        type="range" 
+                        id="max_tokens" 
+                        name="max_tokens"
+                        class="slider-input"
+                        min="100" 
+                        max="4000" 
+                        step="100"
+                        value="{% if settings %}{{ settings.max_tokens }}{% else %}1000{% endif %}"
+                    >
+                    <div class="warning-box">
+                        <div class="warning-box-title">
+                            ⚠️ Attention
+                        </div>
+                        <div class="warning-box-text">
+                            Plus de tokens = réponses plus longues mais aussi plus coûteuses avec les APIs premium.
+                            1000 tokens ≈ 750 mots.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                ← Retour Dashboard
+            </a>
+            <button type="button" class="btn btn-secondary" onclick="testAllConnections()">
+                🧪 Tester Connexions
+            </button>
+            <button type="submit" class="btn btn-primary">
+                💾 Sauvegarder
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Éléments
+        const temperatureSlider = document.getElementById('temperature');
+        const temperatureValue = document.getElementById('temperatureValue');
+        const tokensSlider = document.getElementById('max_tokens');
+        const tokensValue = document.getElementById('tokensValue');
+        const defaultModelSelect = document.getElementById('default_model');
+        const modelPreview = document.getElementById('modelPreview');
+
+        // Descriptions des modèles
+        const modelDescriptions = {
+            'huggingface': {
+                name: 'Hugging Face',
+                description: 'Modèle gratuit, toujours disponible. Performances correctes pour la plupart des tâches.'
+            },
+            'openai': {
+                name: 'OpenAI GPT',
+                description: 'Modèle premium très performant. Excellent pour toutes les tâches, nécessite une clé API.'
+            },
+            'anthropic': {
+                name: 'Anthropic Claude',
+                description: 'Modèle premium axé sur la sécurité. Excellent pour l\'analyse et les tâches complexes.'
+            }
+        };
+
+        // Mise à jour des sliders
+        temperatureSlider.addEventListener('input', function() {
+            temperatureValue.textContent = this.value;
+        });
+
+        tokensSlider.addEventListener('input', function() {
+            tokensValue.textContent = this.value;
+        });
+
+        // Mise à jour de l'aperçu du modèle
+        defaultModelSelect.addEventListener('change', function() {
+            const selectedModel = this.value;
+            const modelInfo = modelDescriptions[selectedModel];
+            
+            if (modelInfo) {
+                const previewTitle = modelPreview.querySelector('.model-preview-title');
+                const previewText = modelPreview.querySelector('.model-preview-text');
+                
+                previewTitle.textContent = `Modèle sélectionné : ${modelInfo.name}`;
+                previewText.textContent = modelInfo.description;
+            }
+        });
+
+        // Test de connexions individuelles
+        function testConnection(apiType, apiKey) {
+            const testElement = document.getElementById(`${apiType}-test`);
+            const resultElement = testElement.querySelector('.test-result');
+            
+            testElement.style.display = 'flex';
+            resultElement.className = 'test-result test-loading';
+            resultElement.textContent = 'Test en cours...';
+
+            // Simulation du test (en production, faire un appel API réel)
+            setTimeout(() => {
+                if (apiKey && apiKey.length > 10 && !apiKey.includes('●')) {
+                    resultElement.className = 'test-result test-success';
+                    resultElement.textContent = '✅ Connexion réussie';
+                } else {
+                    resultElement.className = 'test-result test-error';
+                    resultElement.textContent = '❌ Clé API invalide ou manquante';
+                }
+            }, 1500);
+        }
+
+        // Tests automatiques au changement des clés
+        document.getElementById('openai_key').addEventListener('blur', function() {
+            if (this.value && !this.value.includes('●')) {
+                testConnection('openai', this.value);
+            }
+        });
+
+        document.getElementById('anthropic_key').addEventListener('blur', function() {
+            if (this.value && !this.value.includes('●')) {
+                testConnection('anthropic', this.value);
+            }
+        });
+
+        // Fonction globale pour tester toutes les connexions
+        window.testAllConnections = function() {
+            const openaiKey = document.getElementById('openai_key').value;
+            const anthropicKey = document.getElementById('anthropic_key').value;
+
+            if (openaiKey && !openaiKey.includes('●')) {
+                testConnection('openai', openaiKey);
+            }
+            if (anthropicKey && !anthropicKey.includes('●')) {
+                testConnection('anthropic', anthropicKey);
+            }
+
+            if (!openaiKey && !anthropicKey) {
+                alert('ℹ️ Aucune clé API à tester.\n\nHugging Face fonctionne sans clé API.');
+            }
+        };
+
+        // Gestion du formulaire
+        const form = document.getElementById('settingsForm');
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            // Animation de sauvegarde
+            submitBtn.innerHTML = '💾 Sauvegarde...';
+            submitBtn.disabled = true;
+
+            // Validation simple
+            const temperature = parseFloat(temperatureSlider.value);
+            const maxTokens = parseInt(tokensSlider.value);
+
+            if (temperature < 0 || temperature > 1) {
+                e.preventDefault();
+                alert('❌ La température doit être entre 0 et 1');
+                submitBtn.innerHTML = '💾 Sauvegarder';
+                submitBtn.disabled = false;
+                return;
+            }
+
+            if (maxTokens < 100 || maxTokens > 4000) {
+                e.preventDefault();
+                alert('❌ Le nombre de tokens doit être entre 100 et 4000');
+                submitBtn.innerHTML = '💾 Sauvegarder';
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Le formulaire sera soumis normalement après ces vérifications
+        });
+
+        // Effets visuels
+        const inputs = document.querySelectorAll('.form-input, .form-select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.01)';
+                this.parentElement.style.transition = 'transform 0.2s ease';
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Animation des sections au scroll
+        const sections = document.querySelectorAll('.form-section');
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'slideInUp 0.6s ease-out forwards';
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Tooltip pour les éléments d'aide
+        const infoBoxes = document.querySelectorAll('.info-box, .warning-box');
+        infoBoxes.forEach(box => {
+            box.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.02)';
+                this.style.transition = 'transform 0.2s ease';
+            });
+
+            box.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    });
+</script>
+{% endblock %}
