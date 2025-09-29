@@ -1,0 +1,642 @@
+{% extends "base_clean.html" %}
+
+{% block title %}Dashboard - WaveAI{% endblock %}
+
+{% block head %}
+<style>
+    .dashboard-header {
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--wave-gradient);
+    }
+
+    .welcome-message {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .welcome-text h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        animation: fadeInLeft 0.6s ease-out;
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .welcome-text p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        animation: fadeInLeft 0.6s ease-out 0.2s both;
+    }
+
+    .user-avatar {
+        width: 80px;
+        height: 80px;
+        background: var(--wave-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        font-weight: 700;
+        animation: scaleIn 0.6s ease-out 0.4s both;
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        text-align: center;
+        transition: var(--transition);
+        animation: slideUp 0.6s ease-out both;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--wave-primary);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--wave-primary);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .agents-section {
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .agents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .agent-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInScale 0.6s ease-out both;
+    }
+
+    .agent-card:nth-child(1) { animation-delay: 0.1s; }
+    .agent-card:nth-child(2) { animation-delay: 0.2s; }
+    .agent-card:nth-child(3) { animation-delay: 0.3s; }
+    .agent-card:nth-child(4) { animation-delay: 0.4s; }
+    .agent-card:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .agent-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--wave-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .agent-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .agent-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--wave-primary);
+    }
+
+    .agent-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .agent-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: var(--wave-gradient);
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-3px); }
+    }
+
+    .agent-info h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.2rem;
+    }
+
+    .agent-info p {
+        color: var(--wave-primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .agent-description {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+        font-size: 0.95rem;
+    }
+
+    .agent-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .quick-actions {
+        background: var(--bg-secondary);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+    }
+
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .quick-action {
+        padding: 1rem;
+        background: var(--bg-card);
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .quick-action:hover {
+        background: var(--bg-primary);
+        border-color: var(--wave-primary);
+        transform: translateY(-2px);
+    }
+
+    .quick-action-icon {
+        font-size: 1.5rem;
+    }
+
+    .quick-action-text {
+        font-weight: 600;
+    }
+
+    .status-indicators {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(14, 165, 233, 0.05);
+        border-radius: 10px;
+        border: 1px solid rgba(14, 165, 233, 0.1);
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .status-online {
+        color: var(--success);
+    }
+
+    .status-offline {
+        color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+        .welcome-message {
+            text-align: center;
+        }
+        
+        .welcome-text h1 {
+            font-size: 1.5rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .agents-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .agent-card {
+            padding: 1.5rem;
+        }
+        
+        .quick-actions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Tooltips */
+    .tooltip {
+        position: relative;
+        cursor: help;
+    }
+
+    .tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        border: 1px solid var(--border);
+        z-index: 1000;
+    }
+
+    .tooltip:hover::after {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="welcome-message">
+        <div class="welcome-text">
+            <h1>👋 Bonjour {{ user.name }} !</h1>
+            <p>Bienvenue dans votre espace WaveAI. Vos agents IA sont prêts à vous assister.</p>
+        </div>
+        <div class="user-avatar">
+            {{ user.name[0].upper() }}
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="stats-grid">
+    <div class="stat-card tooltip" data-tooltip="Nombre total de conversations">
+        <span class="stat-number">{{ stats.total_conversations }}</span>
+        <span class="stat-label">Conversations</span>
+    </div>
+    <div class="stat-card tooltip" data-tooltip="Agents utilisés récemment">
+        <span class="stat-number">{{ stats.agents_used }}</span>
+        <span class="stat-label">Agents Actifs</span>
+    </div>
+    <div class="stat-card tooltip" data-tooltip="Dernière activité">
+        <span class="stat-number">{{ stats.last_activity }}</span>
+        <span class="stat-label">Dernière Visite</span>
+    </div>
+    <div class="stat-card tooltip" data-tooltip="Date d'inscription">
+        <span class="stat-number">{{ stats.member_since }}</span>
+        <span class="stat-label">Membre Depuis</span>
+    </div>
+</div>
+
+<!-- Agents Section -->
+<section class="agents-section">
+    <h2 class="section-title">
+        🤖 Vos Agents WaveAI
+    </h2>
+    
+    <div class="agents-grid">
+        {% for agent_id, agent in agents.items() %}
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-icon">{{ agent.emoji }}</div>
+                <div class="agent-info">
+                    <h3>{{ agent.name }}</h3>
+                    <p>{{ agent.speciality }}</p>
+                </div>
+            </div>
+            <div class="agent-description">
+                {{ agent.description }}
+            </div>
+            <div class="agent-actions">
+                <a href="{{ url_for('chat', agent_type=agent_id) }}" class="btn btn-primary">
+                    💬 Discuter
+                </a>
+                <button class="btn btn-secondary" onclick="showAgentInfo('{{ agent_id }}')">
+                    ℹ️ Info
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Quick Actions -->
+<section>
+    <h2 class="section-title">
+        ⚡ Actions Rapides
+    </h2>
+    
+    <div class="quick-actions">
+        <div class="quick-actions-grid">
+            <a href="{{ url_for('ai_settings') }}" class="quick-action">
+                <span class="quick-action-icon">⚙️</span>
+                <span class="quick-action-text">Paramètres IA</span>
+            </a>
+            
+            <a href="{{ url_for('chat', agent_type='kai') }}" class="quick-action">
+                <span class="quick-action-icon">💬</span>
+                <span class="quick-action-text">Chat Rapide</span>
+            </a>
+            
+            <a href="#" class="quick-action" onclick="showHelp()">
+                <span class="quick-action-icon">❓</span>
+                <span class="quick-action-text">Aide & Support</span>
+            </a>
+            
+            <a href="#" class="quick-action" onclick="showVersion()">
+                <span class="quick-action-icon">📱</span>
+                <span class="quick-action-text">Version & Mises à jour</span>
+            </a>
+        </div>
+        
+        <!-- Status Indicators -->
+        <div class="status-indicators">
+            <div class="status-item">
+                <span class="status-online">●</span>
+                <span>Système IA: En ligne</span>
+            </div>
+            
+            {% if ollama_available %}
+            <div class="status-item">
+                <span class="status-online">●</span>
+                <span>Ollama: Disponible</span>
+            </div>
+            {% else %}
+            <div class="status-item">
+                <span class="status-offline">●</span>
+                <span>Ollama: Non disponible</span>
+            </div>
+            {% endif %}
+            
+            <div class="status-item">
+                <span class="status-online">●</span>
+                <span>APIs: Configurées</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Fonction pour afficher les infos d'un agent
+    function showAgentInfo(agentId) {
+        const agents = {
+            'alex': {
+                name: 'Alex',
+                description: 'Expert en productivité et organisation professionnelle',
+                capabilities: ['Gestion des emails', 'Organisation des tâches', 'Optimisation workflow', 'Planning professionnel']
+            },
+            'lina': {
+                name: 'Lina',
+                description: 'Spécialiste LinkedIn et réseautage professionnel',
+                capabilities: ['Création de contenu LinkedIn', 'Développement réseau', 'Optimisation profil', 'Stratégie de visibilité']
+            },
+            'marco': {
+                name: 'Marco',
+                description: 'Expert réseaux sociaux et contenu viral',
+                capabilities: ['Contenu engageant', 'Stratégie sociale', 'Analyse tendances', 'Growth hacking']
+            },
+            'sofia': {
+                name: 'Sofia',
+                description: 'Experte en gestion du temps et planification',
+                capabilities: ['Gestion calendriers', 'Optimisation temps', 'Organisation rendez-vous', 'Productivité personnelle']
+            },
+            'kai': {
+                name: 'Kai',
+                description: 'Assistant conversationnel polyvalent',
+                capabilities: ['Discussions libres', 'Aide générale', 'Support technique', 'Compagnon IA']
+            }
+        };
+
+        const agent = agents[agentId];
+        if (agent) {
+            alert(`🤖 ${agent.name}\n\n${agent.description}\n\n✨ Capacités:\n${agent.capabilities.map(cap => `• ${cap}`).join('\n')}`);
+        }
+    }
+
+    // Fonction d'aide
+    function showHelp() {
+        alert(`🆘 Aide WaveAI\n\n• Cliquez sur "Discuter" pour commencer une conversation avec un agent\n• Configurez vos APIs dans "Paramètres IA" pour une meilleure performance\n• Chaque agent est spécialisé dans son domaine\n• Vos conversations sont sauvegardées automatiquement\n\n💡 Conseil: Commencez par Kai pour une assistance générale !`);
+    }
+
+    // Fonction version
+    function showVersion() {
+        alert(`📱 WaveAI Version 1.0.0\n\n✨ Nouveautés:\n• 5 agents spécialisés\n• Support multi-API\n• Interface moderne\n• Système de sauvegarde\n\n🔄 Mises à jour automatiques activées`);
+    }
+
+    // Animation au scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = entry.target.style.animation.replace('paused', 'running');
+            }
+        });
+    }, observerOptions);
+
+    // Observer les éléments
+    document.addEventListener('DOMContentLoaded', function() {
+        const elementsToObserve = document.querySelectorAll('.agent-card, .stat-card');
+        elementsToObserve.forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animation des statistiques (compteur)
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(stat => {
+            const finalValue = parseInt(stat.textContent) || 0;
+            let currentValue = 0;
+            const increment = Math.ceil(finalValue / 20);
+            
+            const counter = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(counter);
+                }
+                
+                if (stat.textContent.includes('/')) {
+                    // Pour les dates, on garde le format original
+                    return;
+                }
+                
+                stat.textContent = currentValue;
+            }, 50);
+        });
+
+        // Auto-refresh des status indicators
+        setInterval(updateStatusIndicators, 30000); // Toutes les 30 secondes
+    });
+
+    // Mise à jour des indicateurs de status
+    function updateStatusIndicators() {
+        // Ici on pourrait faire des appels API pour vérifier les status
+        console.log('Status check...');
+    }
+
+    // Raccourcis clavier
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case '1':
+                    e.preventDefault();
+                    window.location.href = "{{ url_for('chat', agent_type='alex') }}";
+                    break;
+                case '2':
+                    e.preventDefault();
+                    window.location.href = "{{ url_for('chat', agent_type='lina') }}";
+                    break;
+                case '3':
+                    e.preventDefault();
+                    window.location.href = "{{ url_for('chat', agent_type='marco') }}";
+                    break;
+                case '4':
+                    e.preventDefault();
+                    window.location.href = "{{ url_for('chat', agent_type='sofia') }}";
+                    break;
+                case '5':
+                    e.preventDefault();
+                    window.location.href = "{{ url_for('chat', agent_type='kai') }}";
+                    break;
+            }
+        }
+    });
+
+    // Message de bienvenue pour nouveaux utilisateurs
+    {% if stats.total_conversations == 0 %}
+    setTimeout(function() {
+        if (confirm('🎉 Bienvenue dans WaveAI !\n\nC\'est votre première visite. Voulez-vous commencer par une conversation avec Kai, notre agent polyvalent ?')) {
+            window.location.href = "{{ url_for('chat', agent_type='kai') }}";
+        }
+    }, 2000);
+    {% endif %}
+</script>
+{% endblock %}
