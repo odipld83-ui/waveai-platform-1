@@ -1,0 +1,468 @@
+{% extends "base_clean.html" %}
+
+{% block title %}Connexion - WaveAI{% endblock %}
+
+{% block head %}
+<style>
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        padding: 2rem 0;
+    }
+
+    .login-card {
+        background: var(--bg-card);
+        border-radius: 20px;
+        padding: 3rem;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-xl);
+        width: 100%;
+        max-width: 450px;
+        position: relative;
+        overflow: hidden;
+        animation: loginCard 0.6s ease-out;
+    }
+
+    @keyframes loginCard {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--wave-gradient);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-logo {
+        width: 80px;
+        height: 80px;
+        background: var(--wave-gradient);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto 1rem;
+        animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+    }
+
+    .login-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .login-form {
+        margin-bottom: 2rem;
+    }
+
+    .email-input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .email-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        background: var(--bg-secondary);
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        transition: var(--transition);
+    }
+
+    .email-input:focus {
+        outline: none;
+        border-color: var(--wave-primary);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        background: var(--bg-primary);
+    }
+
+    .email-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .email-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 1.2rem;
+        pointer-events: none;
+        transition: var(--transition);
+    }
+
+    .email-input:focus + .email-icon {
+        color: var(--wave-primary);
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--wave-gradient);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-btn:hover {
+        background: var(--wave-gradient-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .login-btn:active {
+        transform: translateY(0);
+    }
+
+    .login-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .login-btn:hover::before {
+        left: 100%;
+    }
+
+    .login-info {
+        text-align: center;
+        padding: 1.5rem;
+        background: rgba(14, 165, 233, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(14, 165, 233, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .login-info-title {
+        font-weight: 600;
+        color: var(--wave-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .login-info-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .supported-emails {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .email-provider {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.6rem;
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .security-note {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(16, 185, 129, 0.05);
+        border-radius: 10px;
+        border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .security-note-title {
+        color: var(--success);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .security-note-text {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .back-link {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .back-link a {
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+
+    .back-link a:hover {
+        color: var(--wave-primary);
+    }
+
+    @media (max-width: 768px) {
+        .login-card {
+            padding: 2rem 1.5rem;
+            margin: 1rem;
+        }
+        
+        .login-title {
+            font-size: 1.75rem;
+        }
+        
+        .supported-emails {
+            gap: 0.5rem;
+        }
+        
+        .email-provider {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+        }
+    }
+
+    /* Animation de chargement */
+    .loading {
+        position: relative;
+        color: transparent;
+    }
+
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <!-- Header -->
+        <div class="login-header">
+            <div class="login-logo">🌊</div>
+            <h1 class="login-title">Connexion WaveAI</h1>
+            <p class="login-subtitle">Accédez à vos agents IA personnalisés</p>
+        </div>
+
+        <!-- Info Authentification Universelle -->
+        <div class="login-info">
+            <div class="login-info-title">
+                <span>✨</span>
+                Authentification Universelle
+            </div>
+            <div class="login-info-text">
+                Connectez-vous avec n'importe quelle adresse email. 
+                Pas besoin de mot de passe, nous vous enverrons un lien de connexion sécurisé.
+            </div>
+            <div class="supported-emails">
+                <div class="email-provider">📧 Gmail</div>
+                <div class="email-provider">📧 Outlook</div>
+                <div class="email-provider">📧 Yahoo</div>
+                <div class="email-provider">📧 Autres</div>
+            </div>
+        </div>
+
+        <!-- Formulaire -->
+        <form method="POST" class="login-form" id="loginForm">
+            <div class="email-input-group">
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email"
+                    class="email-input"
+                    placeholder="votre@email.com"
+                    required
+                    autocomplete="email"
+                    autofocus
+                >
+                <span class="email-icon">📧</span>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                🚀 Se Connecter avec WaveAI
+            </button>
+        </form>
+
+        <!-- Note Sécurité -->
+        <div class="security-note">
+            <div class="security-note-title">
+                <span>🔒</span>
+                Connexion Sécurisée
+            </div>
+            <div class="security-note-text">
+                Votre email est sécurisé et ne sera jamais partagé. 
+                Connexion instantanée sans mot de passe à retenir.
+            </div>
+        </div>
+
+        <!-- Lien Retour -->
+        <div class="back-link">
+            <a href="{{ url_for('landing') }}">← Retour à l'accueil</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('loginForm');
+        const btn = document.getElementById('loginBtn');
+        const emailInput = document.getElementById('email');
+
+        // Animation d'input focus
+        emailInput.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+
+        emailInput.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+
+        // Validation en temps réel
+        emailInput.addEventListener('input', function() {
+            const email = this.value;
+            const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            
+            if (email.length > 0) {
+                if (isValid) {
+                    this.style.borderColor = 'var(--success)';
+                    btn.disabled = false;
+                    btn.textContent = '🚀 Se Connecter avec WaveAI';
+                } else {
+                    this.style.borderColor = 'var(--error)';
+                    btn.disabled = true;
+                    btn.textContent = '❌ Email invalide';
+                }
+            } else {
+                this.style.borderColor = 'var(--border)';
+                btn.disabled = false;
+                btn.textContent = '🚀 Se Connecter avec WaveAI';
+            }
+        });
+
+        // Gestion de la soumission
+        form.addEventListener('submit', function(e) {
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                e.preventDefault();
+                alert('Veuillez saisir votre adresse email');
+                emailInput.focus();
+                return;
+            }
+
+            // Animation de chargement
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btn.textContent = 'Connexion en cours...';
+
+            // Simulation connexion (en mode démo)
+            // En production, le formulaire sera soumis normalement
+        });
+
+        // Auto-complétion suggestions
+        const commonDomains = ['gmail.com', 'outlook.com', 'yahoo.fr', 'hotmail.com'];
+        
+        emailInput.addEventListener('keyup', function() {
+            const value = this.value;
+            const atIndex = value.indexOf('@');
+            
+            if (atIndex > 0 && atIndex === value.length - 1) {
+                // L'utilisateur vient de taper @
+                const suggestions = commonDomains.map(domain => value + domain);
+                console.log('Suggestions:', suggestions);
+                // Ici on pourrait afficher une liste de suggestions
+            }
+        });
+
+        // Easter egg - animation spéciale pour certains emails
+        emailInput.addEventListener('change', function() {
+            const email = this.value.toLowerCase();
+            if (email.includes('wave') || email.includes('ai')) {
+                this.style.background = 'linear-gradient(45deg, rgba(14, 165, 233, 0.1), rgba(6, 182, 212, 0.1))';
+                setTimeout(() => {
+                    this.style.background = 'var(--bg-secondary)';
+                }, 2000);
+            }
+        });
+    });
+
+    // Animation d'apparition séquentielle
+    const elements = document.querySelectorAll('.login-info, .login-form, .security-note');
+    elements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            el.style.transition = 'all 0.6s ease-out';
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, 100 + (index * 150));
+    });
+</script>
+{% endblock %}
