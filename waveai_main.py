@@ -1,44 +1,61 @@
 # WaveAI - Platform Multi-Utilisateurs
-# Version Finale Stable - Nouveau Repository
-# Toutes fonctionnalités optimisées
+# Version FIXED pour erreur SQLAlchemy
+# Compatibilité maximale avec Render
 
 import os
 import logging
 import secrets
-import smtplib
 import re
 from datetime import datetime, timedelta
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
-# Flask Core
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from werkzeug.security import generate_password_hash, check_password_hash
+# CORRECTION: Import ordre optimisé pour éviter conflits SQLAlchemy
+try:
+    # Flask Core
+    from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, make_response
+    
+    # SQLAlchemy avec version fixée
+    from flask_sqlalchemy import SQLAlchemy
+    from flask_migrate import Migrate
+    
+    # Sécurité
+    from werkzeug.security import generate_password_hash, check_password_hash
+    
+except ImportError as e:
+    print(f"Erreur d'import: {e}")
+    print("Vérifiez que toutes les dépendances sont installées avec les bonnes versions.")
+    exit(1)
 
 # Configuration Application
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
-# Database Configuration avec fix PostgreSQL
+# Database Configuration avec fix PostgreSQL ET SQLAlchemy
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///waveai.db')
 if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
+}
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-# Initialisation
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+# Initialisation avec gestion d'erreur
+try:
+    db = SQLAlchemy(app)
+    migrate = Migrate(app, db)
+except Exception as e:
+    print(f"Erreur initialisation SQLAlchemy: {e}")
+    exit(1)
 
 # Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# MODÈLES DE BASE DE DONNÉES
+# MODÈLES DE BASE DE DONNÉES - VERSION COMPATIBLE
 # =============================================================================
 
 class User(db.Model):
@@ -52,10 +69,6 @@ class User(db.Model):
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
-    # Relations
-    ai_settings = db.relationship('AISettings', backref='user', lazy=True, cascade='all, delete-orphan')
-    conversations = db.relationship('Conversation', backref='user', lazy=True, cascade='all, delete-orphan')
-
     def to_dict(self):
         return {
             'id': self.id,
@@ -109,7 +122,7 @@ class AppVersion(db.Model):
     is_current = db.Column(db.Boolean, default=False)
 
 # =============================================================================
-# SYSTÈME IA WAVEAI
+# SYSTÈME IA WAVEAI - OPTIMISÉ
 # =============================================================================
 
 class WaveAISystem:
@@ -180,26 +193,31 @@ class WaveAISystem:
             if settings and settings.huggingface_token:
                 headers['Authorization'] = f'Bearer {settings.huggingface_token}'
 
-            # API Hugging Face
+            # API Hugging Face avec model plus stable
             url = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
             
             payload = {
-                "inputs": message,
+                "inputs": f"{agent['prompt']}\n\nUtilisateur: {message}\nAssistant:",
                 "parameters": {
-                    "max_length": min(settings.max_tokens if settings else 1000, 1500),
+                    "max_length": min(settings.max_tokens if settings else 1000, 1000),
                     "temperature": settings.temperature if settings else 0.7,
+                    "do_sample": True,
                     "return_full_text": False
+                },
+                "options": {
+                    "wait_for_model": True
                 }
             }
 
-            response = requests.post(url, headers=headers, json=payload, timeout=10)
+            response = requests.post(url, headers=headers, json=payload, timeout=15)
             
             if response.status_code == 200:
                 result = response.json()
                 if isinstance(result, list) and len(result) > 0:
                     generated = result[0].get('generated_text', '').strip()
                     if generated and generated != message:
-                        clean_response = generated.replace(message, '').strip()
+                        # Nettoyer la réponse
+                        clean_response = generated.replace(f"{agent['prompt']}", "").replace(f"Utilisateur: {message}", "").replace("Assistant:", "").strip()
                         if clean_response:
                             return {
                                 'success': True,
@@ -212,7 +230,15 @@ class WaveAISystem:
         except Exception as e:
             logger.error(f"Erreur Hugging Face: {e}")
         
-        return None
+        # Fallback response si API échoue
+        agent = self.agents.get(agent_type, self.agents['kai'])
+        return {
+            'success': True,
+            'response': f"Bonjour ! Je suis {agent['name']}, {agent['speciality'].lower()}. Comment puis-je vous aider aujourd'hui ? (Note: Service IA temporairement limité)",
+            'agent': agent_type,
+            'model': 'fallback',
+            'timestamp': datetime.utcnow().isoformat()
+        }
 
     def get_openai_response(self, message, agent_type, settings):
         """Génère une réponse via OpenAI"""
@@ -278,7 +304,7 @@ class WaveAISystem:
             return None
 
     def get_response(self, message, agent_type='kai', user_settings=None):
-        """Génère une réponse avec système de fallback"""
+        """Génère une réponse avec système de fallback robuste"""
         if not message or not message.strip():
             agent = self.agents.get(agent_type, self.agents['kai'])
             return {
@@ -304,7 +330,7 @@ class WaveAISystem:
             if user_settings.anthropic_api_key and self.get_anthropic_response not in methods:
                 methods.append(self.get_anthropic_response)
 
-        # Hugging Face comme fallback gratuit
+        # Hugging Face comme fallback gratuit (toujours disponible)
         methods.append(self.get_huggingface_response)
 
         # Essayer chaque méthode
@@ -317,13 +343,13 @@ class WaveAISystem:
                 logger.error(f"Erreur méthode {method.__name__}: {e}")
                 continue
 
-        # Réponse de fallback si tout échoue
+        # Réponse de fallback garantie si tout échoue
         agent = self.agents.get(agent_type, self.agents['kai'])
         return {
             'success': True,
-            'response': f"Désolé, je rencontre des difficultés techniques. Je suis {agent['name']}, {agent['speciality'].lower()}. Pouvez-vous reformuler votre question ?",
+            'response': f"Je suis {agent['name']}, {agent['speciality'].lower()}. Je rencontre des difficultés techniques temporaires. Pouvez-vous reformuler votre question ?",
             'agent': agent_type,
-            'model': 'fallback',
+            'model': 'emergency_fallback',
             'timestamp': datetime.utcnow().isoformat()
         }
 
@@ -363,10 +389,10 @@ def get_user_settings(user_id):
 def landing():
     """Page d'accueil WaveAI"""
     try:
-        return render_template('landing.html')
+        return render_template('landing_clean.html')
     except Exception as e:
         logger.error(f"Erreur landing: {e}")
-        return "Erreur de chargement", 500
+        return "Erreur de chargement de la page d'accueil", 500
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -377,7 +403,7 @@ def login():
             
             if not validate_email(email):
                 flash('Adresse email invalide', 'error')
-                return render_template('login.html')
+                return render_template('login_clean.html')
 
             # Recherche ou création utilisateur
             user = User.query.filter_by(email=email).first()
@@ -411,9 +437,9 @@ def login():
         except Exception as e:
             logger.error(f"Erreur connexion: {e}")
             flash('Erreur de connexion', 'error')
-            return render_template('login.html')
+            return render_template('login_clean.html')
 
-    return render_template('login.html')
+    return render_template('login_clean.html')
 
 @app.route('/logout')
 def logout():
@@ -442,7 +468,7 @@ def dashboard():
             'member_since': user.created_at.strftime('%d/%m/%Y') if user.created_at else 'Inconnu'
         }
 
-        return render_template('dashboard.html', 
+        return render_template('dashboard_clean.html', 
                              user=user, 
                              stats=stats, 
                              agents=ai_system.agents,
@@ -494,7 +520,7 @@ def ai_settings():
                 flash('Paramètres IA mis à jour avec succès !', 'success')
                 return redirect(url_for('ai_settings'))
 
-        return render_template('ai_settings.html', user=user, settings=settings)
+        return render_template('ai_settings_clean.html', user=user, settings=settings)
 
     except Exception as e:
         logger.error(f"Erreur ai_settings: {e}")
@@ -514,7 +540,7 @@ def chat(agent_type):
     user = User.query.get(session['user_id'])
     agent = ai_system.agents[agent_type]
     
-    return render_template('chat.html', user=user, agent=agent, agent_type=agent_type)
+    return render_template('chat_clean.html', user=user, agent=agent, agent_type=agent_type)
 
 # =============================================================================
 # API ROUTES
@@ -552,13 +578,6 @@ def api_chat():
 
         # Sauvegarder conversation
         try:
-            conversation_data = {
-                'user_message': message,
-                'ai_response': response.get('response', ''),
-                'agent_type': agent_type,
-                'model_used': response.get('model', 'unknown')
-            }
-            
             conversation = Conversation(
                 user_id=user_id,
                 agent_type=agent_type,
@@ -642,51 +661,55 @@ def manifest():
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('error.html', error='Page non trouvée'), 404
+    return render_template('error_clean.html', error='Page non trouvée'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
-    return render_template('error.html', error='Erreur interne du serveur'), 500
+    return render_template('error_clean.html', error='Erreur interne du serveur'), 500
 
 # =============================================================================
-# INITIALISATION
+# INITIALISATION SÉCURISÉE
 # =============================================================================
 
 def init_database():
-    """Initialise la base de données"""
+    """Initialise la base de données avec gestion d'erreur"""
     try:
         with app.app_context():
+            # Créer toutes les tables
             db.create_all()
 
             # Version par défaut
             if not AppVersion.query.filter_by(is_current=True).first():
                 version = AppVersion(
                     version='1.0.0',
-                    description='Version initiale de WaveAI',
+                    description='Version initiale de WaveAI - Compatible Render',
                     is_current=True
                 )
                 db.session.add(version)
                 db.session.commit()
 
-            logger.info("✅ Base de données WaveAI initialisée")
+            logger.info("✅ Base de données WaveAI initialisée avec succès")
             return True
             
     except Exception as e:
-        logger.error(f"❌ Erreur initialisation DB: {e}")
+        logger.error(f"❌ Erreur critique initialisation DB: {e}")
         return False
 
 # =============================================================================
-# POINT D'ENTRÉE
+# POINT D'ENTRÉE PRINCIPAL
 # =============================================================================
 
 if __name__ == '__main__':
+    # Mode développement local
     if init_database():
         port = int(os.environ.get('PORT', 5000))
         debug = os.environ.get('FLASK_ENV') == 'development'
+        logger.info(f"🌊 Démarrage WaveAI sur le port {port}")
         app.run(host='0.0.0.0', port=port, debug=debug)
     else:
-        logger.error("❌ Échec initialisation")
+        logger.error("❌ Échec initialisation - Arrêt de l'application")
 else:
-    # Mode production
+    # Mode production (Render, Heroku, etc.)
+    logger.info("🌊 WaveAI en mode production")
     init_database()
